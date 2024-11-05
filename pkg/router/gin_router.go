@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const GinContextKey = "GinContext"
-
 type GinRouter struct {
 	engine     *gin.Engine
 	middleware []Middleware
@@ -82,14 +80,6 @@ func (g *GinRouter) ServeStatic() error {
 	}
 	g.engine.Static("/assets", absPath)
 	return nil
-}
-
-func GetGinContext(r *http.Request) *gin.Context {
-	ctx := r.Context().Value(GinContextKey)
-	if ctx == nil {
-		panic("Gin context not found in request context")
-	}
-	return ctx.(*gin.Context)
 }
 
 // Helper function to wrap Middleware to gin.HandlerFunc
