@@ -1,0 +1,59 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of the build process
+/bin/
+/build/
+/dist/
+/out/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Compiled object files
+*.o
+*.a
+*.out
+
+# Go-specific files
+*.log
+*.test
+*.coverprofile
+*.mod
+*.sum
+/go.sum
+/go.mod
+
+# GoLand IDE files
+.idea/
+
+# Vendor directory (if using vendoring)
+vendor/
+
+# Dependency directories (when using go modules)
+Gopkg.lock
+Gopkg.toml
+Godeps/
+
+# Config and environment files
+.env
+.env.*
+
+# Test binary output
+*.test
+
+# MacOS specific files
+.DS_Store
+
+# Linux specific files
+*.swp
+
+# Node modules (if applicable, e.g., for frontend with Go backend)
+node_modules/
+
+# Logs
+*.log
