@@ -1,17 +1,78 @@
 package router
 
 import (
-	"fmt"
+	"encoding/gob"
+	"log"
 	"net/http"
 	"path/filepath"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 )
 
-// GinRouter is an adapter for the gin router.
+const GinContextKey = "GinContext"
+
 type GinRouter struct {
-	Router     *gin.Engine
+	engine     *gin.Engine
 	middleware []Middleware
+}
+
+type UserInfo struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Picture       string `json:"picture"`
+}
+
+func NewGinRouter() Router {
+	gob.Register(UserInfo{})
+	engine := gin.New()
+
+	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	if err != nil {
+		log.Fatalf("Failed to create Redis store: %v", err)
+	}
+	engine.Use(sessions.Sessions("session_name", store))
+
+	return &GinRouter{
+		engine: engine,
+	}
+}
+
+func (g *GinRouter) Handle(method, path string, handler gin.HandlerFunc) {
+	// Apply middleware to the handler
+	finalHandler := handler
+	for _, m := range g.middleware {
+		finalHandler = wrapMiddleware(m, finalHandler)
+	}
+
+	// Register the route
+	switch method {
+	case http.MethodGet:
+		g.engine.GET(path, finalHandler)
+	case http.MethodPost:
+		g.engine.POST(path, finalHandler)
+	case http.MethodPut:
+		g.engine.PUT(path, finalHandler)
+	case http.MethodDelete:
+		g.engine.DELETE(path, finalHandler)
+	default:
+		// Handle other HTTP methods if needed
+	}
+}
+
+func (g *GinRouter) WithMiddleware(middleware ...Middleware) Router {
+	g.middleware = append(g.middleware, middleware...)
+	return g
+}
+
+func (g *GinRouter) Serve(addr string) error {
+	return g.engine.Run(addr)
+}
+
+func (g *GinRouter) Handler() http.Handler {
+	return g.engine
 }
 
 func (g *GinRouter) ServeStatic() error {
@@ -19,53 +80,25 @@ func (g *GinRouter) ServeStatic() error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Serving static files from:", absPath)
-
-	g.Router.Static("/assets", absPath)
+	g.engine.Static("/assets", absPath)
 	return nil
 }
 
-func (g *GinRouter) Handler() http.Handler {
-	return g.Router
-}
-
-// NewGinRouter creates a new instance of GinRouter.
-func NewGinRouter() Router {
-	return &GinRouter{
-		Router: gin.Default(),
+func GetGinContext(r *http.Request) *gin.Context {
+	ctx := r.Context().Value(GinContextKey)
+	if ctx == nil {
+		panic("Gin context not found in request context")
 	}
+	return ctx.(*gin.Context)
 }
 
-// WithMiddleware adds middleware to the router and returns the updated router.
-func (g *GinRouter) WithMiddleware(middleware ...Middleware) Router {
-	g.middleware = append(g.middleware, middleware...)
-	return g
-}
-
-// Handle registers a new route and applies the middleware to the handler.
-func (g *GinRouter) Handle(method, path string, handler gin.HandlerFunc) {
-	// Wrap handler with middleware
-	finalHandler := handler
-	for _, m := range g.middleware {
-		finalHandler = func(c *gin.Context) {
-			m(func(w http.ResponseWriter, r *http.Request) {
-				c.Request = r
-				handler(c)
-			})(c.Writer, c.Request)
+// Helper function to wrap Middleware to gin.HandlerFunc
+func wrapMiddleware(m Middleware, next gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		m()(c) // Execute the middleware
+		if c.IsAborted() {
+			return // If middleware aborted the request, stop the chain
 		}
+		next(c) // Proceed to the next handler
 	}
-
-	// Register the route with gin
-	switch method {
-	case http.MethodGet:
-		g.Router.GET(path, finalHandler)
-	case http.MethodPost:
-		g.Router.POST(path, finalHandler)
-	}
-}
-
-// Serve starts the Gin server at the given address.
-func (g *GinRouter) Serve(addr string) error {
-	return g.Router.Run(addr)
 }
