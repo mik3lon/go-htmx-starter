@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Middleware func() gin.HandlerFunc
+
 type GinRouter struct {
 	engine     *gin.Engine
 	middleware []Middleware
@@ -23,7 +25,7 @@ type UserInfo struct {
 	Picture       string `json:"picture"`
 }
 
-func NewGinRouter() Router {
+func NewGinRouter() *GinRouter {
 	gob.Register(UserInfo{})
 	engine := gin.New()
 
@@ -60,7 +62,7 @@ func (g *GinRouter) Handle(method, path string, handler gin.HandlerFunc) {
 	}
 }
 
-func (g *GinRouter) WithMiddleware(middleware ...Middleware) Router {
+func (g *GinRouter) WithMiddleware(middleware ...Middleware) *GinRouter {
 	g.middleware = append(g.middleware, middleware...)
 	return g
 }

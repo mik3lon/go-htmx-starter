@@ -64,5 +64,5 @@ func (h *HandleGoogleCallbackHandler) HandleGoogleCallback(g *gin.Context) {
 		return
 	}
 
-	http.Redirect(g.Writer, g.Request, "/users/test", http.StatusFound)
+	http.Redirect(g.Writer, g.Request, "/dashboard", http.StatusFound)
 }

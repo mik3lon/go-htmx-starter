@@ -1,8 +1,9 @@
 package user_ui
 
 import (
-	"encoding/json"
+	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
+	"go-boilerplate/internal/app/module/user/ui/views"
 	"log"
 	"net/http"
 )
@@ -15,19 +16,13 @@ func NewUserTestHandler() *UserTestHandler {
 }
 
 func (uth *UserTestHandler) HandleUserTests(g *gin.Context) {
-	userInfo, exists := g.Get("userInfo")
+	_, exists := g.Get("userInfo")
 	if !exists {
 		log.Println("UserInfo not found in context")
 		g.JSON(http.StatusInternalServerError, gin.H{"error": "User info not found"})
 		return
 	}
 
-	response := map[string]interface{}{
-		"message": "HERE!",
-		"user":    userInfo,
-	}
-	if err := json.NewEncoder(g.Writer).Encode(response); err != nil {
-		log.Printf("Failed to write response: %v\n", err)
-	}
-
+	g.Writer.Header().Set("Content-Type", "text/html")
+	templ.Handler(views.DashboardLayout()).ServeHTTP(g.Writer, g.Request)
 }

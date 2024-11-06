@@ -8,7 +8,7 @@ import (
 )
 
 type Kernel struct {
-	Router  router.Router
+	Router  *router.GinRouter
 	Modules Modules
 	server  *http.Server
 }

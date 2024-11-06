@@ -3,7 +3,8 @@ version: '3.8'
 services:
   postgres:
     image: postgres:13
-    container_name: my_postgres
+    container_name: go-htmx-starter-postgres
+    hostname: postgres
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
@@ -15,8 +16,22 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: 'redis:alpine'
+    container_name: go-htmx-starter-redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - 'redis_data:/data'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      retries: 3
+      timeout: 5s
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app_network:

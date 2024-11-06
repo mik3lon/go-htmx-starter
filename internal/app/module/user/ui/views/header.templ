@@ -1,0 +1,24 @@
+package views
+
+templ Header() {
+	<div class="flex items-center justify-between bg-white border-b border-gray-200 p-4">
+		<div class="flex items-center">
+			<!-- Sidebar toggle button (always visible) -->
+			<button @click="sidebarOpen = !sidebarOpen" class="text-gray-600 lg:hidden focus:outline-none">
+				<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+					<path x-show="!sidebarOpen" fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 6h14a1 1 0 010 2H3a1 1 0 010-2zm0 6h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"></path>
+					<path x-show="sidebarOpen" fill-rule="evenodd" d="M5 5l10 10M15 5L5 15" clip-rule="evenodd"></path>
+				</svg>
+			</button>
+		</div>
+		<!-- Right section with icons and profile -->
+		<div class="flex items-center space-x-6" x-data="{ openProfile: false, openNotifications: false }">
+			<!-- Language selection -->
+			@LanguageDropdown()
+			<!-- Notifications with dropdown -->
+			@Notifications()
+			<!-- User profile with dropdown -->
+			@UserProfileDropdown()
+		</div>
+	</div>
+}

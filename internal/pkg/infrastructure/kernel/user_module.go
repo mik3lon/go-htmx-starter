@@ -24,6 +24,7 @@ type UserModule struct {
 	GoogleRedirectHandler  *user_ui.GoogleLoginRedirectHandler
 	GoogleCallbackHandler  *user_ui.HandleGoogleCallbackHandler
 	HandleUserTests        *user_ui.UserTestHandler
+	UserSettingsHandler    *user_ui.UserSettingsHandler
 }
 
 // InitUserModule creates a new instance of UserModule.
@@ -46,6 +47,7 @@ func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
 		GoogleRedirectHandler:  user_ui.NewGoogleLoginRedirectHandler(googleOauthConfig),
 		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig),
 		HandleUserTests:        user_ui.NewUserTestHandler(),
+		UserSettingsHandler:    user_ui.NewUserSettingsHandler(),
 	}
 
 	return um
@@ -58,13 +60,13 @@ func (m *UserModule) RegisterRoutes(c *Kernel) {
 		m.UserSignInIndexHandler,
 	)
 
-	c.Router.WithMiddleware().Handle(
+	c.Router.Handle(
 		http.MethodGet,
 		GoogleRedirectUrl,
 		m.GoogleRedirectHandler.HandleGoogleLoginRedirect,
 	)
 
-	c.Router.WithMiddleware().Handle(
+	c.Router.Handle(
 		http.MethodGet,
 		GoogleCallback,
 		m.GoogleCallbackHandler.HandleGoogleCallback,
@@ -72,7 +74,13 @@ func (m *UserModule) RegisterRoutes(c *Kernel) {
 
 	c.Router.WithMiddleware(middleware.AuthMiddleware).Handle(
 		http.MethodGet,
-		"/users/test",
+		"/dashboard",
 		m.HandleUserTests.HandleUserTests,
+	)
+
+	c.Router.WithMiddleware(middleware.AuthMiddleware).Handle(
+		http.MethodGet,
+		"/settings",
+		m.UserSettingsHandler.HandeUserSettings,
 	)
 }

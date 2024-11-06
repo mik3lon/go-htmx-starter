@@ -1,0 +1,46 @@
+package views
+
+templ DashboardLayout() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Dashboard</title>
+			<link rel="stylesheet" href="/assets/dist/tailwind.min.css"/>
+			<!-- Add Alpine.js for handling interactivity -->
+			<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.2/dist/cdn.min.js" defer></script>
+			<script src="https://unpkg.com/htmx.org@1.6.1"></script>
+		</head>
+		<body class="bg-gray-100 font-sans antialiased">
+			<div
+				x-data="{ sidebarOpen: window.innerWidth >= 768 }"
+				x-init="
+                // Set sidebarOpen based on initial screen width
+                sidebarOpen = window.innerWidth >= 768;
+
+                // Listen for window resize events and adjust sidebarOpen
+                window.addEventListener('resize', () => {
+                    sidebarOpen = window.innerWidth >= 768;
+                });
+            "
+				class="flex h-screen"
+			>
+				<!-- Sidebar -->
+				@Sidebar()
+				<!-- Main content area -->
+				<div :class="{'lg:ml-64': sidebarOpen}" class="flex-1 flex flex-col transition-all duration-200">
+					<!-- Header -->
+					@Header()
+					<!-- Main Content -->
+					<main id="content" class="p-6 overflow-y-auto flex-1">
+						<h2 class="text-2xl font-bold mb-4">Welcome to the Dashboard</h2>
+						<p class="text-gray-600">This is where your main content will go.</p>
+					</main>
+				</div>
+			</div>
+			<!-- Link to the external JavaScript file -->
+			<script src="/assets/dist/dashboard.js"></script>
+		</body>
+	</html>
+}

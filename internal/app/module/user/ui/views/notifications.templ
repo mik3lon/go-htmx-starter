@@ -1,0 +1,68 @@
+package views
+
+templ Notifications() {
+	<div class="relative">
+		<button @click="openNotifications = !openNotifications" class="text-gray-600 relative focus:outline-none">
+			<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+				<path d="M10 2a6 6 0 00-6 6v4l-1.293 1.293a1 1 0 000 1.414 1 1 0 001.414 0L6 14h8l1.293 1.293a1 1 0 001.414 0 1 1 0 000-1.414L16 12V8a6 6 0 00-6-6z"></path>
+			</svg>
+			<span class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-white bg-blue-500 rounded-full">5</span>
+		</button>
+		<div
+			x-show="openNotifications"
+			x-transition:enter="transition ease-out duration-400"
+			x-transition:enter-start="opacity-0 transform -translate-y-4 scale-95"
+			x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+			x-transition:leave="transition ease-in duration-300"
+			x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+			x-transition:leave-end="opacity-0 transform -translate-y-4 scale-95"
+			@click.away="openNotifications = false"
+			class="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg py-6 z-10"
+			style="min-width: 26rem;"
+		>
+			<div class="px-6 py-3 text-gray-700 font-semibold text-lg">Notifications</div>
+			<!-- Notification Item -->
+			<div class="px-6 py-3 flex items-center space-x-4 hover:bg-gray-100">
+				<img src="https://spike-nextjs-pro-main.vercel.app/images/profile/user-2.jpg" alt="Avatar" class="w-10 h-10 rounded-full"/>
+				<div>
+					<p class="text-base font-semibold text-gray-800">Roman Joined the Team!</p>
+					<p class="text-sm text-gray-500">Congratulate him</p>
+				</div>
+			</div>
+			<div class="px-6 py-3 flex items-center space-x-4 hover:bg-gray-100">
+				<img src="https://spike-nextjs-pro-main.vercel.app/images/profile/user-2.jpg" alt="Avatar" class="w-10 h-10 rounded-full"/>
+				<div>
+					<p class="text-base font-semibold text-gray-800">New message received</p>
+					<p class="text-sm text-gray-500">Salma sent you a new message</p>
+				</div>
+			</div>
+			<div class="px-6 py-3 flex items-center space-x-4 hover:bg-gray-100">
+				<img src="https://spike-nextjs-pro-main.vercel.app/images/profile/user-2.jpg" alt="Avatar" class="w-10 h-10 rounded-full"/>
+				<div>
+					<p class="text-base font-semibold text-gray-800">New Payment received</p>
+					<p class="text-sm text-gray-500">Check your earnings</p>
+				</div>
+			</div>
+			<div class="px-6 py-3 flex items-center space-x-4 hover:bg-gray-100">
+				<img src="https://spike-nextjs-pro-main.vercel.app/images/profile/user-2.jpg" alt="Avatar" class="w-10 h-10 rounded-full"/>
+				<div>
+					<p class="text-base font-semibold text-gray-800">Jolly completed tasks</p>
+					<p class="text-sm text-gray-500">Assign her new tasks</p>
+				</div>
+			</div>
+			<div class="px-6 py-3 flex items-center space-x-4 hover:bg-gray-100">
+				<img src="https://spike-nextjs-pro-main.vercel.app/images/profile/user-2.jpg" alt="Avatar" class="w-10 h-10 rounded-full"/>
+				<div>
+					<p class="text-base font-semibold text-gray-800">Roman Joined the Team!</p>
+					<p class="text-sm text-gray-500">Congratulate him</p>
+				</div>
+			</div>
+			<!-- See All Notifications Button -->
+			<div class="text-center mt-4">
+				<button class="px-5 py-3 text-blue-600 font-semibold border border-blue-600 rounded-full hover:bg-blue-50 text-lg">
+					See all Notifications
+				</button>
+			</div>
+		</div>
+	</div>
+}

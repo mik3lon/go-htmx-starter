@@ -1,0 +1,31 @@
+package views
+
+templ LanguageDropdown() {
+	<div x-data="{ openLanguageDropdown: false }" class="relative">
+		<button @click="openLanguageDropdown = !openLanguageDropdown" class="text-gray-600 relative focus:outline-none">
+			<img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Language" class="w-6 h-6 rounded-full"/>
+		</button>
+		<div
+			x-show="openLanguageDropdown"
+			x-transition:enter="transition ease-out duration-400"
+			x-transition:enter-start="opacity-0 transform -translate-y-4 scale-95"
+			x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+			x-transition:leave="transition ease-in duration-300"
+			x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+			x-transition:leave-end="opacity-0 transform -translate-y-4 scale-95"
+			@click.away="openLanguageDropdown = false"
+			class="absolute p-4 right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10"
+		>
+			<!-- English Option -->
+			<div class="px-4 py-2 flex items-center space-x-3 hover:bg-gray-100 cursor-pointer">
+				<img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English" class="w-5 h-5 rounded-full"/>
+				<span class="text-sm font-semibold text-gray-800">English (UK)</span>
+			</div>
+			<!-- Spanish Option -->
+			<div class="px-4 py-2 flex items-center space-x-3 hover:bg-gray-100 cursor-pointer">
+				<img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Spanish" class="w-5 h-5 rounded-full"/>
+				<span class="text-sm font-semibold text-gray-800">Español (Spain)</span>
+			</div>
+		</div>
+	</div>
+}
