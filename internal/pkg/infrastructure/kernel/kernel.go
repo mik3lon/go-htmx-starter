@@ -9,7 +9,7 @@ import (
 
 type Kernel struct {
 	Router  *router.GinRouter
-	Modules Modules
+	Modules map[string]Module
 	server  *http.Server
 }
 
@@ -30,8 +30,10 @@ func Init(cnf *config.Config) *Kernel {
 	}
 
 	userModule := InitUserModule(k, cnf)
-
 	k.addModule(userModule)
+
+	notificationModule := InitNotificationModule(k, cnf)
+	k.addModule(notificationModule)
 
 	k.RegisterModuleRoutes()
 
@@ -51,7 +53,15 @@ func (c *Kernel) StartServer() error {
 }
 
 func (c *Kernel) addModule(module Module) {
-	c.Modules = append(c.Modules, module)
+	if c.Modules == nil {
+		c.Modules = make(map[string]Module)
+	}
+
+	if c.Modules[module.Name()] != nil {
+		panic("Module already exists")
+	}
+
+	c.Modules[module.Name()] = module
 }
 
 func (c *Kernel) ShutdownServer(ctx context.Context) error {

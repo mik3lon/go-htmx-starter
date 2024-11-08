@@ -17,20 +17,6 @@ type User struct {
 	UpdatedAt      time.Time `json:"updatedAt" gorm:"autoUpdateTime"`
 }
 
-func FromUser(u *user_domain.User) *User {
-	return &User{
-		ID:             u.Id(),
-		Username:       u.Username(),
-		Email:          u.Email(),
-		HashedPassword: u.HashedPassword(),
-		Name:           u.Name(),
-		Surname:        u.Surname(),
-		Role:           u.Role(),
-		CreatedAt:      u.CreatedAt(),
-		UpdatedAt:      u.UpdatedAt(),
-	}
-}
-
 func ToDomainUser(u User) *user_domain.User {
 	return user_domain.FromPrimitives(
 		u.ID,

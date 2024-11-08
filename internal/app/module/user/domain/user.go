@@ -4,67 +4,32 @@ import (
 	"time"
 )
 
+type UserList []*User
 type User struct {
-	id             string
-	username       string
-	email          string
-	hashedPassword string
-	name           string
-	surname        string
-	role           string
-	createdAt      time.Time
-	updatedAt      time.Time
+	ID             string    `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"` // UUID primary key
+	Username       string    `gorm:"type:varchar(50);uniqueIndex"`                    // Unique index for username
+	Email          string    `gorm:"type:varchar(100);uniqueIndex"`                   // Unique index for email
+	HashedPassword string    `gorm:"type:varchar(255)"`                               // Password hash
+	Name           string    `gorm:"type:varchar(50)"`                                // Name field
+	Surname        string    `gorm:"type:varchar(50)"`                                // Surname field
+	Role           string    `gorm:"type:varchar(20);default:'user'"`                 // Role with a default value
+	CreatedAt      time.Time `gorm:"autoCreateTime"`                                  // Automatically set on create
+	UpdatedAt      time.Time `gorm:"autoUpdateTime"`                                  // Automatically set on update
 }
 
 // CreateUser creates a new User entity.
 func CreateUser(id, username, email, password, name, surname, role string) *User {
 	return &User{
-		id:             id,
-		username:       username,
-		email:          email,
-		hashedPassword: password,
-		name:           name,
-		surname:        surname,
-		role:           role,
-		createdAt:      time.Now(),
-		updatedAt:      time.Now(),
+		ID:             id,
+		Username:       username,
+		Email:          email,
+		HashedPassword: password,
+		Name:           name,
+		Surname:        surname,
+		Role:           role,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
-}
-
-func (u *User) Id() string {
-	return u.id
-}
-
-func (u *User) Username() string {
-	return u.username
-}
-
-func (u *User) Email() string {
-	return u.email
-}
-
-func (u *User) HashedPassword() string {
-	return u.hashedPassword
-}
-
-func (u *User) Name() string {
-	return u.name
-}
-
-func (u *User) Surname() string {
-	return u.surname
-}
-
-func (u *User) Role() string {
-	return u.role
-}
-
-func (u *User) CreatedAt() time.Time {
-	return u.createdAt
-}
-
-func (u *User) UpdatedAt() time.Time {
-	return u.updatedAt
 }
 
 func FromPrimitives(
@@ -78,14 +43,14 @@ func FromPrimitives(
 	createdAt, updatedAt time.Time,
 ) *User {
 	return &User{
-		id:             id,
-		username:       username,
-		email:          email,
-		hashedPassword: hashedPassword,
-		name:           name,
-		surname:        surname,
-		role:           role,
-		createdAt:      createdAt,
-		updatedAt:      updatedAt,
+		ID:             id,
+		Username:       username,
+		Email:          email,
+		HashedPassword: hashedPassword,
+		Name:           name,
+		Surname:        surname,
+		Role:           role,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
 	}
 }

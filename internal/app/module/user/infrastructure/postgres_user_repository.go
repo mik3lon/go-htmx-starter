@@ -32,7 +32,7 @@ func NewPostgresUserRepository(dsn string) (*PostgresUserRepository, error) {
 }
 
 func (r *PostgresUserRepository) Save(ctx context.Context, user *user_domain.User) error {
-	result := r.DB.Save(FromUser(user))
+	result := r.DB.Save(user)
 	return result.Error
 }
 
@@ -44,4 +44,18 @@ func (r *PostgresUserRepository) FindByEmail(ctx context.Context, email string) 
 		return nil, user_domain.ErrUserNotFound
 	}
 	return ToDomainUser(user), result.Error
+}
+
+func (r *PostgresUserRepository) FindAll(ctx context.Context) (user_domain.UserList, error) {
+	var users []User
+	result := r.DB.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	userList := make(user_domain.UserList, len(users))
+	for i, u := range users {
+		userList[i] = ToDomainUser(u)
+	}
+	return userList, nil
 }

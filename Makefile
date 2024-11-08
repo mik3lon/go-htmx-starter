@@ -1,3 +1,8 @@
+ifneq (,$(wildcard .env))
+  include .env
+  export
+endif
+
 # Variables
 DOCKER_COMPOSE_FILE = docker-compose.yml
 YELLOW  = \033[33m
@@ -18,6 +23,7 @@ help:
 	@echo "  ${YELLOW}down${RESET}    - Stop the application containers and remove the network"
 	@echo "  ${YELLOW}logs${RESET}    - View logs of the running containers in real-time"
 	@echo "  ${YELLOW}clean${RESET}   - Stop the containers and remove volumes and orphan containers"
+	@echo "  ${YELLOW}run dev${RESET} - Run server in dev mode (templ)"
 	@echo ""
 	@echo "${CYAN}Example: make up${RESET}"
 	@echo ""
@@ -49,3 +55,8 @@ tests:
 	&& echo "${GREEN}Success: All tests passed!${RESET}" \
 	|| echo "${RED}Error: Some tests failed.${RESET}"
 
+
+# run in dev mode. use templ to watch changes in the code
+run dev:
+	@echo "${CYAN}Running server in dev mode 🚀${RESET}"
+	templ generate --watch --proxy="http://localhost:$(ADDRESS_PORT)" --cmd="go run cmd/web/app/main.go"

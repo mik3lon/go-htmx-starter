@@ -17,7 +17,7 @@ func NewMemoryUserRepository() *InMemoryUserRepository {
 
 // Save stores a user in memory.
 func (r *InMemoryUserRepository) Save(ctx context.Context, user *user_domain.User) error {
-	r.usersByEmail[user.Email()] = user
+	r.usersByEmail[user.Email] = user
 	return nil
 }
 

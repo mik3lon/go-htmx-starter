@@ -3,6 +3,7 @@ package kernel
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib" // Import the pgx driver
+	user_domain "go-boilerplate/internal/app/module/user/domain"
 	"go-boilerplate/internal/app/module/user/infrastructure"
 	user_ui "go-boilerplate/internal/app/module/user/ui"
 	"go-boilerplate/pkg/config"
@@ -17,6 +18,8 @@ const (
 	UserSignInIndexRoute = "/sign-in"
 	GoogleRedirectUrl    = "/auth/google"
 	GoogleCallback       = "/auth/google/callback"
+
+	GetUserList = "/users"
 )
 
 type UserModule struct {
@@ -24,10 +27,17 @@ type UserModule struct {
 	GoogleRedirectHandler  *user_ui.GoogleLoginRedirectHandler
 	GoogleCallbackHandler  *user_ui.HandleGoogleCallbackHandler
 	HandleUserTests        *user_ui.UserTestHandler
-	UserSettingsHandler    *user_ui.UserSettingsHandler
+
+	GetUserList *user_ui.GetUserListHandler
+
+	UserRepository user_domain.UserRepository
 }
 
-// InitUserModule creates a new instance of UserModule.
+func (m *UserModule) Name() string {
+	return "user_module"
+}
+
+// InitUserModule creates a new instance of NotificationModule.
 func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
 	_, err := user_infrastructure.NewPostgresUserRepository(cnf.DatabaseDSN)
 	if err != nil {
@@ -42,12 +52,18 @@ func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
 		Endpoint:     google.Endpoint,
 	}
 
+	r, err := user_infrastructure.NewPostgresUserRepository(cnf.DatabaseDSN)
+	if err != nil {
+		panic("error connecting with the database")
+	}
+
 	um := &UserModule{
+		UserRepository:         r,
 		UserSignInIndexHandler: user_ui.HandleUserSocialSignInIndex,
 		GoogleRedirectHandler:  user_ui.NewGoogleLoginRedirectHandler(googleOauthConfig),
 		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig),
 		HandleUserTests:        user_ui.NewUserTestHandler(),
-		UserSettingsHandler:    user_ui.NewUserSettingsHandler(),
+		GetUserList:            user_ui.NewGetUserListHandler(r),
 	}
 
 	return um
@@ -80,7 +96,7 @@ func (m *UserModule) RegisterRoutes(c *Kernel) {
 
 	c.Router.WithMiddleware(middleware.AuthMiddleware).Handle(
 		http.MethodGet,
-		"/settings",
-		m.UserSettingsHandler.HandeUserSettings,
+		GetUserList,
+		m.GetUserList.HandleGetUserList,
 	)
 }
