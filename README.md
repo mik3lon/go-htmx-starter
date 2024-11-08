@@ -1,4 +1,4 @@
-# Go HTMX Starter
+# (WIP) Go HTMX Starter
 
 ![Go](https://img.shields.io/badge/Go-1.18+-blue.svg)
 ![Gin](https://img.shields.io/badge/Gin-Framework-blue.svg)
