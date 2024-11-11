@@ -8,14 +8,14 @@ import (
 	"net/http"
 )
 
-type UserTestHandler struct {
+type UserDashboardHandler struct {
 }
 
-func NewUserTestHandler() *UserTestHandler {
-	return &UserTestHandler{}
+func NewUserDashboardHandler() *UserDashboardHandler {
+	return &UserDashboardHandler{}
 }
 
-func (uth *UserTestHandler) HandleUserTests(g *gin.Context) {
+func (uth *UserDashboardHandler) HandleUserDashboard(g *gin.Context) {
 	_, exists := g.Get("userInfo")
 	if !exists {
 		log.Println("UserInfo not found in context")

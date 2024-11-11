@@ -3,6 +3,7 @@ package kernel
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib" // Import the pgx driver
+	user_application "go-boilerplate/internal/app/module/user/application"
 	user_domain "go-boilerplate/internal/app/module/user/domain"
 	"go-boilerplate/internal/app/module/user/infrastructure"
 	user_ui "go-boilerplate/internal/app/module/user/ui"
@@ -23,10 +24,12 @@ const (
 )
 
 type UserModule struct {
+	BaseModule
+
 	UserSignInIndexHandler gin.HandlerFunc
 	GoogleRedirectHandler  *user_ui.GoogleLoginRedirectHandler
 	GoogleCallbackHandler  *user_ui.HandleGoogleCallbackHandler
-	HandleUserTests        *user_ui.UserTestHandler
+	UserDashboardHandler   *user_ui.UserDashboardHandler
 
 	GetUserList *user_ui.GetUserListHandler
 
@@ -38,7 +41,7 @@ func (m *UserModule) Name() string {
 }
 
 // InitUserModule creates a new instance of NotificationModule.
-func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
+func InitUserModule(k *Kernel, cnf *config.Config) *UserModule {
 	_, err := user_infrastructure.NewPostgresUserRepository(cnf.DatabaseDSN)
 	if err != nil {
 		panic(err)
@@ -48,8 +51,11 @@ func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		RedirectURL:  os.Getenv("GOOGLE_CLIENT_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/userinfo.email",
+		},
+		Endpoint: google.Endpoint,
 	}
 
 	r, err := user_infrastructure.NewPostgresUserRepository(cnf.DatabaseDSN)
@@ -61,10 +67,12 @@ func InitUserModule(c *Kernel, cnf *config.Config) *UserModule {
 		UserRepository:         r,
 		UserSignInIndexHandler: user_ui.HandleUserSocialSignInIndex,
 		GoogleRedirectHandler:  user_ui.NewGoogleLoginRedirectHandler(googleOauthConfig),
-		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig),
-		HandleUserTests:        user_ui.NewUserTestHandler(),
+		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig, k.CommandBus),
+		UserDashboardHandler:   user_ui.NewUserDashboardHandler(),
 		GetUserList:            user_ui.NewGetUserListHandler(r),
 	}
+
+	um.AddCommand(&user_application.CreateUserCommand{}, user_application.NewCreateUserCommandHandler(r))
 
 	return um
 }
@@ -91,7 +99,7 @@ func (m *UserModule) RegisterRoutes(c *Kernel) {
 	c.Router.WithMiddleware(middleware.AuthMiddleware).Handle(
 		http.MethodGet,
 		"/dashboard",
-		m.HandleUserTests.HandleUserTests,
+		m.UserDashboardHandler.HandleUserDashboard,
 	)
 
 	c.Router.WithMiddleware(middleware.AuthMiddleware).Handle(

@@ -18,15 +18,18 @@ type GinRouter struct {
 	middleware []Middleware
 }
 
-type UserInfo struct {
+type GoogleUserInfo struct {
 	ID            string `json:"id"`
 	Email         string `json:"email"`
 	VerifiedEmail bool   `json:"verified_email"`
 	Picture       string `json:"picture"`
+	Name          string `json:"name"`        // Full name
+	GivenName     string `json:"given_name"`  // First name
+	FamilyName    string `json:"family_name"` // Last name or surname
 }
 
 func NewGinRouter() *GinRouter {
-	gob.Register(UserInfo{})
+	gob.Register(GoogleUserInfo{})
 	engine := gin.New()
 
 	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))

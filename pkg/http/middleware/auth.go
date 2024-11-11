@@ -21,15 +21,15 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Cast the user to UserInfo and add it to the context
-		userInfo, ok := user.(router.UserInfo)
+		// Cast the user to GoogleUserInfo and add it to the context
+		userInfo, ok := user.(router.GoogleUserInfo)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid session data"})
 			c.Abort()
 			return
 		}
 
-		// Store UserInfo in the context
+		// Store GoogleUserInfo in the context
 		c.Set("userInfo", userInfo)
 
 		c.Next()

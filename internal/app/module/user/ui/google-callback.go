@@ -3,8 +3,13 @@ package user_ui
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	user_application "go-boilerplate/internal/app/module/user/application"
+	user_domain "go-boilerplate/internal/app/module/user/domain"
+	"go-boilerplate/pkg/bus/command"
 	"go-boilerplate/pkg/router"
 	"golang.org/x/oauth2"
 	"log"
@@ -13,10 +18,11 @@ import (
 
 type HandleGoogleCallbackHandler struct {
 	googleOauthConfig *oauth2.Config
+	cb                *command.CommandBus
 }
 
-func NewHandleGoogleCallbackHandler(googleOauthConfig *oauth2.Config) *HandleGoogleCallbackHandler {
-	return &HandleGoogleCallbackHandler{googleOauthConfig: googleOauthConfig}
+func NewHandleGoogleCallbackHandler(googleOauthConfig *oauth2.Config, cb *command.CommandBus) *HandleGoogleCallbackHandler {
+	return &HandleGoogleCallbackHandler{googleOauthConfig: googleOauthConfig, cb: cb}
 }
 
 func (h *HandleGoogleCallbackHandler) HandleGoogleCallback(g *gin.Context) {
@@ -45,24 +51,38 @@ func (h *HandleGoogleCallbackHandler) HandleGoogleCallback(g *gin.Context) {
 	defer resp.Body.Close()
 
 	// Display user info as JSON (for demonstration purposes)
-	var userInfo router.UserInfo
+	var userInfo router.GoogleUserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		log.Printf("Failed to parse user info: %v\n", err)
 		http.Error(g.Writer, `{"error": "Failed to parse user info"}`, http.StatusInternalServerError)
 		return
 	}
 
-	// Set the response header to application/json
-	g.Writer.Header().Set("Content-Type", "application/json")
-	g.Writer.WriteHeader(http.StatusOK)
-
-	session := sessions.Default(g)
-	session.Set("user", userInfo)
-	if err := session.Save(); err != nil {
-		log.Printf("Failed to save session: %v\n", err)
-		http.Error(g.Writer, `{"error": "Failed to save session"}`, http.StatusInternalServerError)
-		return
+	cuc := &user_application.CreateUserCommand{
+		ID:               uuid.NewString(),
+		Name:             userInfo.GivenName,
+		Surname:          userInfo.FamilyName,
+		Username:         userInfo.Name,
+		PlainPassword:    "",
+		Email:            userInfo.Email,
+		Role:             "ROL_USER",
+		IsFormSocialAuth: true,
 	}
 
-	http.Redirect(g.Writer, g.Request, "/dashboard", http.StatusFound)
+	err = h.cb.Dispatch(g, cuc)
+	var userAlreadyExists *user_domain.UserAlreadyExists
+	switch {
+	case errors.As(err, &userAlreadyExists):
+		session := sessions.Default(g)
+		session.Set("user", userInfo)
+		if err := session.Save(); err != nil {
+			log.Printf("Failed to save session: %v\n", err)
+			http.Error(g.Writer, `{"error": "Failed to save session"}`, http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(g.Writer, g.Request, "/dashboard", http.StatusFound)
+	default:
+		http.Error(g.Writer, `{"error": "Failed to get user info"}`, http.StatusInternalServerError)
+	}
 }
