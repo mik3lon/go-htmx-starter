@@ -2,7 +2,7 @@ package notification_ui
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-boilerplate/internal/app/module/notification/ui/views"
+	"github.com/mik3lon/go-htmx-starter/internal/app/module/notification/ui/views"
 )
 
 type GetNotificationListHandler struct {

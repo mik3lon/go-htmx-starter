@@ -1,6 +1,8 @@
 package views
 
-templ DashboardLayout() {
+import user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
+
+templ DashboardLayout(u user_domain.User) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -31,7 +33,7 @@ templ DashboardLayout() {
 				<!-- Main content area -->
 				<div :class="{'lg:ml-64': sidebarOpen}" class="flex-1 flex flex-col transition-all duration-200">
 					<!-- Header -->
-					@Header()
+					@Header(u)
 					<!-- Main Content -->
 					<main id="content" class="p-6 overflow-y-auto flex-1">
 						<h2 class="text-2xl font-bold mb-4">Welcome to the Dashboard</h2>
@@ -41,6 +43,27 @@ templ DashboardLayout() {
 			</div>
 			<!-- Link to the external JavaScript file -->
 			<script src="/assets/dist/dashboard.js"></script>
+			<script>
+			document.addEventListener("DOMContentLoaded", () => {
+                // Load content based on the anchor hash
+                function loadContentFromHash() {
+                    const hash = window.location.hash;
+
+                    if (hash === "#users") {
+                        // Load the user list partial view
+                        htmx.ajax("GET", "/users", "#content");
+                    } else if (hash === "#notifications") {
+                        // Load the notifications partial view
+                        htmx.ajax("GET", "/notifications", "#content");
+                    }
+                }
+
+                // Initial load based on hash
+                loadContentFromHash();
+
+                // Listen for hash changes
+                window.addEventListener("hashchange", loadContentFromHash);
+            });</script>
 		</body>
 	</html>
 }

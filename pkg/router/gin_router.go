@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/gob"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -29,7 +30,7 @@ type GoogleUserInfo struct {
 }
 
 func NewGinRouter() *GinRouter {
-	gob.Register(GoogleUserInfo{})
+	gob.Register(user_domain.User{})
 	engine := gin.New()
 
 	store, err := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))

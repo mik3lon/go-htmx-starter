@@ -1,11 +1,12 @@
 package views
 
 import (
-	user_domain "go-boilerplate/internal/app/module/user/domain"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
+	"fmt"
 )
 
-templ UserList(ul user_domain.UserList) {
-	<div class="container mx-auto px-4">
+templ UserList(ul user_domain.UserList, page int, size int, totalUsers int) {
+	<div class="container mx-auto px-4" id="user-table">
 		<h1 class="text-2xl font-semibold text-gray-800 mb-4">User List</h1>
 		<table class="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
 			<thead>
@@ -35,5 +36,24 @@ templ UserList(ul user_domain.UserList) {
 				}
 			</tbody>
 		</table>
+		<div class="flex justify-between items-center mt-4">
+			// Pagination Controls
+			if page > 1 {
+				<button
+					class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+					hx-get={fmt.Sprintf("/users?page=%d&size=%d", page-1, size)}
+					hx-target="#user-table">
+					Previous
+				</button>
+			}
+			if page*size < totalUsers {
+				<button
+					class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+					hx-get={fmt.Sprintf("/users?page=%d&size=%d", page+1, size)}
+					hx-target="#user-table">
+					Next
+				</button>
+			}
+		</div>
 	</div>
 }

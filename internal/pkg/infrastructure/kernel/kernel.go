@@ -2,11 +2,11 @@ package kernel
 
 import (
 	"context"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus/command"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus/query"
+	"github.com/mik3lon/go-htmx-starter/pkg/config"
+	"github.com/mik3lon/go-htmx-starter/pkg/router"
 	"github.com/rs/zerolog"
-	"go-boilerplate/pkg/bus/command"
-	"go-boilerplate/pkg/bus/query"
-	"go-boilerplate/pkg/config"
-	"go-boilerplate/pkg/router"
 	"net/http"
 	"os"
 )
@@ -35,6 +35,7 @@ func Init(cnf *config.Config) *Kernel {
 			Handler: r.Handler(),
 		},
 		CommandBus: command.InitCommandBus(l),
+		QueryBus:   query.InitQueryBus(l),
 	}
 
 	userModule := InitUserModule(k, cnf)
@@ -72,6 +73,13 @@ func (k *Kernel) addModule(module Module) {
 
 	for c, ch := range module.Commands() {
 		err := k.CommandBus.RegisterCommand(c, ch)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	for q, ch := range module.Queries() {
+		err := k.QueryBus.RegisterQuery(q, ch)
 		if err != nil {
 			panic(err)
 		}

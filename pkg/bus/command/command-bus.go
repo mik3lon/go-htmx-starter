@@ -3,8 +3,8 @@ package command
 import (
 	"context"
 	"errors"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus"
 	"github.com/rs/zerolog"
-	"go-boilerplate/pkg/bus"
 	"reflect"
 	"sync"
 )

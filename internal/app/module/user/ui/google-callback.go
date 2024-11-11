@@ -7,10 +7,11 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	user_application "go-boilerplate/internal/app/module/user/application"
-	user_domain "go-boilerplate/internal/app/module/user/domain"
-	"go-boilerplate/pkg/bus/command"
-	"go-boilerplate/pkg/router"
+	user_application "github.com/mik3lon/go-htmx-starter/internal/app/module/user/application"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus/command"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus/query"
+	"github.com/mik3lon/go-htmx-starter/pkg/router"
 	"golang.org/x/oauth2"
 	"log"
 	"net/http"
@@ -19,10 +20,15 @@ import (
 type HandleGoogleCallbackHandler struct {
 	googleOauthConfig *oauth2.Config
 	cb                *command.CommandBus
+	qb                *query.QueryBus
 }
 
-func NewHandleGoogleCallbackHandler(googleOauthConfig *oauth2.Config, cb *command.CommandBus) *HandleGoogleCallbackHandler {
-	return &HandleGoogleCallbackHandler{googleOauthConfig: googleOauthConfig, cb: cb}
+func NewHandleGoogleCallbackHandler(
+	googleOauthConfig *oauth2.Config,
+	cb *command.CommandBus,
+	qb *query.QueryBus,
+) *HandleGoogleCallbackHandler {
+	return &HandleGoogleCallbackHandler{googleOauthConfig: googleOauthConfig, cb: cb, qb: qb}
 }
 
 func (h *HandleGoogleCallbackHandler) HandleGoogleCallback(g *gin.Context) {
@@ -59,22 +65,28 @@ func (h *HandleGoogleCallbackHandler) HandleGoogleCallback(g *gin.Context) {
 	}
 
 	cuc := &user_application.CreateUserCommand{
-		ID:               uuid.NewString(),
-		Name:             userInfo.GivenName,
-		Surname:          userInfo.FamilyName,
-		Username:         userInfo.Name,
-		PlainPassword:    "",
-		Email:            userInfo.Email,
-		Role:             "ROL_USER",
-		IsFormSocialAuth: true,
+		ID:                uuid.NewString(),
+		Name:              userInfo.GivenName,
+		Surname:           userInfo.FamilyName,
+		Username:          userInfo.Name,
+		PlainPassword:     "",
+		Email:             userInfo.Email,
+		Role:              "ROL_USER",
+		ProfilePictureUrl: userInfo.Picture,
+		IsFormSocialAuth:  true,
 	}
 
 	err = h.cb.Dispatch(g, cuc)
 	var userAlreadyExists *user_domain.UserAlreadyExists
 	switch {
-	case errors.As(err, &userAlreadyExists):
+	case err == nil, errors.As(err, &userAlreadyExists):
+		user, err := h.qb.Ask(g, &user_application.FindUserQuery{Email: userInfo.Email})
+		if err != nil {
+			panic(err)
+		}
+
 		session := sessions.Default(g)
-		session.Set("user", userInfo)
+		session.Set("user", user)
 		if err := session.Save(); err != nil {
 			log.Printf("Failed to save session: %v\n", err)
 			http.Error(g.Writer, `{"error": "Failed to save session"}`, http.StatusInternalServerError)

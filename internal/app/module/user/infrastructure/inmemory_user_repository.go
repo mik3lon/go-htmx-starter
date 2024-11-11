@@ -2,7 +2,7 @@ package user_infrastructure
 
 import (
 	"context"
-	user_domain "go-boilerplate/internal/app/module/user/domain"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
 )
 
 // InMemoryUserRepository is an in-memory implementation of UserRepository.

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
-	user_domain "go-boilerplate/internal/app/module/user/domain"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -50,33 +50,27 @@ func (r *PostgresUserRepository) Save(ctx context.Context, user *user_domain.Use
 }
 
 func (r *PostgresUserRepository) FindByEmail(ctx context.Context, email string) (*user_domain.User, error) {
-	var user User
+	var user *user_domain.User
 	result := r.DB.First(&user, "email = ?", email)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, user_domain.ErrUserNotFound
 	}
-	return ToDomainUser(user), result.Error
+	return user, result.Error
 }
 
-func (r *PostgresUserRepository) FindAll(ctx context.Context) (user_domain.UserList, error) {
-	var users []User
-	result := r.DB.Find(&users)
+func (r *PostgresUserRepository) FindAll(ctx context.Context, page int, size int) (user_domain.UserList, error) {
+	var users []*user_domain.User
+	offset := (page - 1) * size
+
+	result := r.DB.Limit(size).Offset(offset).Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	userList := make(user_domain.UserList, len(users))
 	for i, u := range users {
-		userList[i] = ToDomainUser(u)
+		userList[i] = u
 	}
 	return userList, nil
-}
-
-func isUniqueViolation(err error) bool {
-	var pgError *pgconn.PgError
-	if errors.As(err, &pgError) {
-		return pgError.Code == "23505"
-	}
-	return false
 }

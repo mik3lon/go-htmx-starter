@@ -3,12 +3,12 @@ package kernel
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v4/stdlib" // Import the pgx driver
-	user_application "go-boilerplate/internal/app/module/user/application"
-	user_domain "go-boilerplate/internal/app/module/user/domain"
-	"go-boilerplate/internal/app/module/user/infrastructure"
-	user_ui "go-boilerplate/internal/app/module/user/ui"
-	"go-boilerplate/pkg/config"
-	"go-boilerplate/pkg/http/middleware"
+	user_application "github.com/mik3lon/go-htmx-starter/internal/app/module/user/application"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
+	user_infrastructure "github.com/mik3lon/go-htmx-starter/internal/app/module/user/infrastructure"
+	user_ui "github.com/mik3lon/go-htmx-starter/internal/app/module/user/ui"
+	"github.com/mik3lon/go-htmx-starter/pkg/config"
+	"github.com/mik3lon/go-htmx-starter/pkg/http/middleware"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"net/http"
@@ -67,12 +67,14 @@ func InitUserModule(k *Kernel, cnf *config.Config) *UserModule {
 		UserRepository:         r,
 		UserSignInIndexHandler: user_ui.HandleUserSocialSignInIndex,
 		GoogleRedirectHandler:  user_ui.NewGoogleLoginRedirectHandler(googleOauthConfig),
-		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig, k.CommandBus),
+		GoogleCallbackHandler:  user_ui.NewHandleGoogleCallbackHandler(googleOauthConfig, k.CommandBus, k.QueryBus),
 		UserDashboardHandler:   user_ui.NewUserDashboardHandler(),
-		GetUserList:            user_ui.NewGetUserListHandler(r),
+		GetUserList:            user_ui.NewGetUserListHandler(k.QueryBus),
 	}
 
 	um.AddCommand(&user_application.CreateUserCommand{}, user_application.NewCreateUserCommandHandler(r))
+	um.AddQuery(&user_application.FindUserQuery{}, user_application.NewFindUserQueryHandler(r))
+	um.AddQuery(&user_application.ListUsersQuery{}, user_application.NewListUsersQueryHandler(r))
 
 	return um
 }

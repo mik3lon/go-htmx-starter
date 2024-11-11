@@ -2,7 +2,7 @@ package query
 
 import (
 	"context"
-	"go-boilerplate/pkg/bus"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus"
 )
 
 type QueryHandler interface {

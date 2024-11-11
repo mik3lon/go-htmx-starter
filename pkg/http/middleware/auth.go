@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go-boilerplate/pkg/router"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -21,8 +21,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Cast the user to GoogleUserInfo and add it to the context
-		userInfo, ok := user.(router.GoogleUserInfo)
+		_, ok := user.(user_domain.User)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid session data"})
 			c.Abort()
@@ -30,7 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Store GoogleUserInfo in the context
-		c.Set("userInfo", userInfo)
+		c.Set("user", user)
 
 		c.Next()
 	}

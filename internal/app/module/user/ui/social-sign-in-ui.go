@@ -3,7 +3,7 @@ package user_ui
 import (
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
-	"go-boilerplate/internal/app/module/user/ui/views"
+	"github.com/mik3lon/go-htmx-starter/internal/app/module/user/ui/views"
 )
 
 func HandleUserSocialSignInIndex(g *gin.Context) {

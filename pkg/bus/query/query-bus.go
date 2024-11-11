@@ -2,8 +2,8 @@ package query
 
 import (
 	"context"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus"
 	"github.com/rs/zerolog"
-	"go-boilerplate/pkg/bus"
 	"sync"
 )
 

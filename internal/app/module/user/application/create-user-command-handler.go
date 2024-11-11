@@ -3,19 +3,20 @@ package user_application
 import (
 	"context"
 	"errors"
-	user_domain "go-boilerplate/internal/app/module/user/domain"
-	"go-boilerplate/pkg/bus"
+	user_domain "github.com/mik3lon/go-htmx-starter/internal/app/module/user/domain"
+	"github.com/mik3lon/go-htmx-starter/pkg/bus"
 )
 
 type CreateUserCommand struct {
-	ID               string
-	Name             string
-	Surname          string
-	Username         string
-	PlainPassword    string
-	Email            string
-	Role             string
-	IsFormSocialAuth bool
+	ID                string
+	Name              string
+	Surname           string
+	Username          string
+	PlainPassword     string
+	Email             string
+	Role              string
+	ProfilePictureUrl string
+	IsFormSocialAuth  bool
 }
 
 func (c CreateUserCommand) Id() string {
@@ -49,6 +50,7 @@ func (cuch CreateUserCommandHandler) Handle(ctx context.Context, c bus.Dto) erro
 		cuc.Name,
 		cuc.Surname,
 		cuc.Role,
+		cuc.ProfilePictureUrl,
 	)
 
 	return cuch.r.Save(ctx, user)

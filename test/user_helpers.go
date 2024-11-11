@@ -20,6 +20,7 @@ func RandomUserFixture() (*user_domain.User, error) {
 	name := faker.FirstName()          // Generate a random first name
 	surname := faker.LastName()        // Generate a random last name
 	role := randomRole()               // Randomly select a role
+	profilePictureUrl := faker.URL()
 	createdAtStr := faker.Date()
 	createdAt, err := time.Parse(dateFormat, createdAtStr)
 	if err != nil {
@@ -37,6 +38,7 @@ func RandomUserFixture() (*user_domain.User, error) {
 		name,
 		surname,
 		role,
+		profilePictureUrl,
 		createdAt,
 		updatedAt,
 	)

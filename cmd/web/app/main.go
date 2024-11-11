@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"go-boilerplate/internal/pkg/infrastructure/kernel"
-	"go-boilerplate/pkg/config"
+	"github.com/mik3lon/go-htmx-starter/internal/pkg/infrastructure/kernel"
+	"github.com/mik3lon/go-htmx-starter/pkg/config"
 	"log"
 	"os"
 	"os/signal"
