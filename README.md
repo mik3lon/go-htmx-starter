@@ -1,5 +1,8 @@
 # (WIP) Go HTMX Starter
 
+⚠️ **This project is not being continued due to limitations in HTMX, which does not currently provide the necessary features to fully develop a Single Page Application (SPA) without tricky stuff.**
+
+
 ![Go](https://img.shields.io/badge/Go-1.18+-blue.svg)
 ![Gin](https://img.shields.io/badge/Gin-Framework-blue.svg)
 ![HTMX](https://img.shields.io/badge/HTMX-JS-orange.svg)
